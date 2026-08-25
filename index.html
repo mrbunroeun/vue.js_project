@@ -1,13 +1,1048 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="en">
   <head>
     <meta charset="UTF-8">
     <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <title>ScripBaa — Creative Developer Portfolio</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+
+      body {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: #0a0a1a;
+        color: #fff;
+        overflow-x: hidden;
+      }
+
+      ::selection { background: #ff2fd0; color: #fff; }
+
+      .bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        filter: blur(90px);
+        opacity: 0.55;
+        pointer-events: none;
+      }
+      .blob {
+        position: absolute;
+        width: 45vmax;
+        height: 45vmax;
+        border-radius: 50%;
+        animation: drift 18s ease-in-out infinite alternate;
+      }
+      .blob:nth-child(1) { background: #7b025b; top: -15%; left: -10%; }
+      .blob:nth-child(2) { background: #2d0a6e; bottom: -20%; right: -10%; animation-delay: -6s; }
+      .blob:nth-child(3) { background: #0b4f6c; top: 30%; left: 40%; animation-delay: -12s; }
+      @keyframes drift {
+        from { transform: translate(0, 0) scale(1); }
+        to   { transform: translate(60px, -80px) scale(1.25); }
+      }
+
+      #app { position: relative; z-index: 1; }
+
+      .glass {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 24px;
+      }
+
+      .grad-text {
+        background: linear-gradient(135deg, #ff2fd0, #ff6b35 55%, #ffd23f);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 14px 34px;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        border-radius: 999px;
+        color: #fff;
+        font-family: inherit;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #ff2fd0, #ff6b35);
+        box-shadow: 0 10px 30px rgba(255, 47, 130, 0.45);
+      }
+      .btn-primary:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 16px 42px rgba(255, 47, 130, 0.65);
+      }
+      .btn-ghost {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .btn-ghost:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.15); }
+
+      .section { max-width: 1100px; margin: 0 auto; padding: 100px 20px; }
+
+      .tag {
+        display: inline-block;
+        padding: 6px 18px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #ff8ae6;
+        border: 1px solid rgba(255, 47, 208, 0.4);
+        border-radius: 999px;
+        background: rgba(123, 2, 91, 0.25);
+        margin-bottom: 16px;
+      }
+      h2.section-title {
+        font-size: clamp(32px, 5vw, 46px);
+        margin-bottom: 14px;
+      }
+      .section-sub {
+        color: rgba(255, 255, 255, 0.6);
+        max-width: 600px;
+        margin-bottom: 48px;
+        line-height: 1.7;
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(45px);
+        transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .reveal.visible { opacity: 1; transform: none; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+      }
+
+      /* ===== NAVBAR ===== */
+      header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        background: rgba(10, 10, 26, 0.65);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      nav {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .logo {
+        font-size: 22px;
+        font-weight: 800;
+        text-decoration: none;
+        letter-spacing: 1px;
+      }
+      .nav-links { display: flex; gap: 30px; list-style: none; }
+      .nav-links a {
+        color: rgba(255, 255, 255, 0.75);
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 600;
+        position: relative;
+        transition: color 0.25s ease;
+      }
+      .nav-links a::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -6px;
+        width: 0;
+        height: 2px;
+        border-radius: 2px;
+        background: linear-gradient(90deg, #ff2fd0, #ff6b35);
+        transition: width 0.3s ease;
+      }
+      .nav-links a:hover { color: #fff; }
+      .nav-links a:hover::after { width: 100%; }
+
+      .hamburger {
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 6px;
+      }
+      .hamburger span {
+        width: 26px;
+        height: 3px;
+        border-radius: 3px;
+        background: #fff;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+      .hamburger.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+      .hamburger.open span:nth-child(2) { opacity: 0; }
+      .hamburger.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+      /* ===== HERO ===== */
+      .hero {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 120px 20px 80px;
+      }
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 20px;
+        font-size: 13px;
+        color: #b8f5d0;
+        border: 1px solid rgba(80, 250, 160, 0.35);
+        border-radius: 999px;
+        background: rgba(20, 90, 60, 0.25);
+        margin-bottom: 28px;
+      }
+      .pulse-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #35e08c;
+        box-shadow: 0 0 12px #35e08c;
+        animation: pulse 1.6s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50%      { transform: scale(1.5); opacity: 0.5; }
+      }
+      .hero h1 {
+        font-size: clamp(44px, 9vw, 88px);
+        font-weight: 900;
+        line-height: 1.08;
+        letter-spacing: -1px;
+      }
+      .typed-wrap {
+        margin-top: 18px;
+        font-size: clamp(19px, 3.4vw, 27px);
+        font-weight: 600;
+        color: #ffb3ec;
+        min-height: 38px;
+      }
+      .cursor {
+        display: inline-block;
+        width: 3px;
+        height: 1em;
+        margin-left: 3px;
+        vertical-align: -0.12em;
+        background: #ff2fd0;
+        animation: blink 1s steps(1) infinite;
+      }
+      @keyframes blink { 50% { opacity: 0; } }
+      .hero p.lead {
+        max-width: 620px;
+        margin: 22px auto 38px;
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 17px;
+        line-height: 1.75;
+      }
+      .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+      .hero-stats {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 64px;
+      }
+      .stat {
+        padding: 22px 34px;
+        min-width: 150px;
+      }
+      .stat b {
+        display: block;
+        font-size: 32px;
+      }
+      .stat span { font-size: 13px; color: rgba(255, 255, 255, 0.55); letter-spacing: 1px; text-transform: uppercase; }
+
+      /* ===== ABOUT ===== */
+      .about-grid {
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        gap: 56px;
+        align-items: center;
+      }
+      .avatar-ring {
+        position: relative;
+        width: 280px;
+        height: 280px;
+        margin: 0 auto;
+        border-radius: 50%;
+        padding: 8px;
+        background: conic-gradient(from 0deg, #ff2fd0, #ff6b35, #ffd23f, #ff2fd0);
+        animation: spin 8s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .avatar-ring::before {
+        content: '';
+        position: absolute;
+        inset: 8px;
+        border-radius: 50%;
+        background: #12122a;
+      }
+      .avatar {
+        position: absolute;
+        inset: 8px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 96px;
+        animation: spin 8s linear infinite reverse;
+      }
+      .about-text p {
+        color: rgba(255, 255, 255, 0.68);
+        line-height: 1.85;
+        margin-bottom: 18px;
+        font-size: 16.5px;
+      }
+      .about-points { list-style: none; margin-top: 26px; display: grid; gap: 12px; }
+      .about-points li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 15.5px;
+      }
+      .check {
+        display: grid;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+        font-size: 13px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff2fd0, #ff6b35);
+      }
+
+      /* ===== SKILLS ===== */
+      .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+      }
+      .skill-card { padding: 26px; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+      .skill-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 40px rgba(255, 47, 208, 0.18);
+      }
+      .skill-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 16px;
+      }
+      .skill-icon {
+        display: grid;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+        border-radius: 14px;
+        background: rgba(255, 47, 208, 0.14);
+        border: 1px solid rgba(255, 47, 208, 0.3);
+      }
+      .skill-head b { font-size: 17px; }
+      .skill-head span { float: right; color: #ffd23f; font-size: 13px; font-weight: 700; }
+      .bar {
+        height: 9px;
+        border-radius: 99px;
+        background: rgba(255, 255, 255, 0.09);
+        overflow: hidden;
+      }
+      .bar-fill {
+        height: 100%;
+        border-radius: 99px;
+        width: 0;
+        background: linear-gradient(90deg, #ff2fd0, #ff6b35);
+        transition: width 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.2s;
+      }
+      .reveal.visible .bar-fill { width: var(--w); }
+
+      /* ===== PROJECTS ===== */
+      .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+        gap: 24px;
+      }
+      .project-card {
+        overflow: hidden;
+        transition: transform 0.35s ease, box-shadow 0.35s ease;
+        display: flex;
+        flex-direction: column;
+      }
+      .project-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 22px 50px rgba(255, 47, 208, 0.22);
+      }
+      .project-cover {
+        height: 150px;
+        display: grid;
+        place-items: center;
+        font-size: 58px;
+        background: linear-gradient(135deg, rgba(123, 2, 91, 0.5), rgba(45, 10, 110, 0.5));
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .project-body { padding: 24px; display: flex; flex-direction: column; flex: 1; }
+      .project-body h3 { font-size: 19px; margin-bottom: 10px; }
+      .project-body p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 14.5px;
+        line-height: 1.7;
+        flex: 1;
+      }
+      .tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0; }
+      .tag-chip {
+        padding: 5px 14px;
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        border-radius: 99px;
+        color: #ffc9f2;
+        background: rgba(255, 47, 208, 0.13);
+        border: 1px solid rgba(255, 47, 208, 0.28);
+      }
+      .project-link {
+        color: #ffd23f;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        letter-spacing: 1px;
+      }
+      .project-link:hover { text-decoration: underline; }
+
+      /* ===== CONTACT ===== */
+      .contact-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.3fr;
+        gap: 40px;
+        align-items: start;
+      }
+      .contact-info { padding: 34px; display: grid; gap: 22px; }
+      .info-row { display: flex; align-items: center; gap: 16px; }
+      .info-icon {
+        display: grid;
+        place-items: center;
+        width: 46px;
+        height: 46px;
+        font-size: 20px;
+        border-radius: 13px;
+        background: rgba(255, 107, 53, 0.15);
+        border: 1px solid rgba(255, 107, 53, 0.35);
+      }
+      .info-row b { display: block; font-size: 14px; }
+      .info-row span { color: rgba(255, 255, 255, 0.6); font-size: 14px; }
+      a.info-row {
+        text-decoration: none;
+        color: inherit;
+        padding: 8px 10px;
+        margin: -8px -10px;
+        border-radius: 14px;
+        transition: background 0.25s ease;
+      }
+      a.info-row:hover { background: rgba(255, 255, 255, 0.07); }
+      a.info-row:hover span { color: #ff8ae6; }
+
+      .contact-info .tg-btn {
+        margin-top: 10px;
+        text-align: center;
+        background: linear-gradient(135deg, #229ed9, #35c3f3);
+        box-shadow: 0 10px 30px rgba(34, 158, 217, 0.45);
+      }
+      .contact-info .tg-btn:hover {
+        box-shadow: 0 16px 42px rgba(34, 158, 217, 0.65);
+      }
+
+      .contact-form { padding: 34px; }
+      .field { margin-bottom: 18px; }
+      .field label {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.55);
+        margin-bottom: 8px;
+      }
+      .field input,
+      .field textarea {
+        width: 100%;
+        padding: 14px 18px;
+        font-size: 15px;
+        font-family: inherit;
+        color: #fff;
+        border-radius: 13px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(10, 10, 26, 0.5);
+        outline: none;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
+      }
+      .field textarea { resize: vertical; min-height: 130px; }
+      .field input:focus,
+      .field textarea:focus {
+        border-color: #ff2fd0;
+        box-shadow: 0 0 0 3px rgba(255, 47, 208, 0.2);
+      }
+      .form-msg {
+        margin-top: 16px;
+        padding: 14px 18px;
+        border-radius: 12px;
+        font-size: 14.5px;
+      }
+      .form-msg.ok {
+        color: #b8f5d0;
+        background: rgba(53, 224, 140, 0.12);
+        border: 1px solid rgba(53, 224, 140, 0.35);
+      }
+      .form-msg.err {
+        color: #ffc4cf;
+        background: rgba(255, 60, 100, 0.12);
+        border: 1px solid rgba(255, 60, 100, 0.35);
+      }
+
+      /* Submit success animation */
+      .contact-form { position: relative; overflow: hidden; }
+      .btn[disabled] { opacity: 0.85; cursor: default; }
+      .spinner {
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        margin-right: 9px;
+        vertical-align: -2px;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+
+      .form-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 6;
+        display: grid;
+        place-items: center;
+        background: rgba(13, 13, 32, 0.94);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-radius: inherit;
+        animation: fadeIn 0.45s ease both;
+      }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+      .overlay-inner { position: relative; text-align: center; padding: 30px; }
+      .check-svg { width: 100px; height: 100px; margin-bottom: 20px; }
+      .check-circle {
+        fill: none;
+        stroke: #35e08c;
+        stroke-width: 2.5;
+        stroke-dasharray: 302;
+        stroke-dashoffset: 302;
+        transform-origin: center;
+        filter: drop-shadow(0 0 12px rgba(53, 224, 140, 0.6));
+        animation: draw 0.7s ease forwards 0.1s;
+      }
+      .check-mark {
+        fill: none;
+        stroke: #35e08c;
+        stroke-width: 4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 80;
+        stroke-dashoffset: 80;
+        animation: draw 0.45s ease forwards 0.8s;
+      }
+      @keyframes draw { to { stroke-dashoffset: 0; } }
+
+      .fly-rocket {
+        position: absolute;
+        left: 50%;
+        bottom: 46px;
+        font-size: 36px;
+        opacity: 0;
+        pointer-events: none;
+        animation: flyUp 1.2s cubic-bezier(0.25, 0.7, 0.3, 1) forwards 0.25s;
+      }
+      @keyframes flyUp {
+        0%   { opacity: 0; transform: translate(-50%, 0) rotate(-45deg); }
+        15%  { opacity: 1; }
+        100% { opacity: 0; transform: translate(-50%, -300px) rotate(-45deg); }
+      }
+
+      .overlay-inner h3 {
+        font-size: 26px;
+        margin-bottom: 10px;
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both 0.55s;
+      }
+      .overlay-inner p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 14.5px;
+        margin-bottom: 24px;
+        animation: popIn 0.5s ease both 0.7s;
+      }
+      @keyframes popIn {
+        from { opacity: 0; transform: scale(0.7) translateY(10px); }
+        to   { opacity: 1; transform: none; }
+      }
+
+      .overlay-fade-leave-active { transition: opacity 0.35s ease, transform 0.35s ease; }
+      .overlay-fade-leave-to { opacity: 0; transform: scale(0.96); }
+
+      footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 34px 20px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.45);
+        font-size: 14px;
+      }
+      footer a { color: #ff8ae6; text-decoration: none; }
+      footer a:hover { text-decoration: underline; }
+
+      .to-top {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        z-index: 40;
+        width: 52px;
+        height: 52px;
+        font-size: 20px;
+        cursor: pointer;
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff2fd0, #ff6b35);
+        box-shadow: 0 10px 26px rgba(255, 47, 130, 0.5);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(20px);
+        transition: all 0.35s ease;
+      }
+      .to-top.show { opacity: 1; pointer-events: auto; transform: none; }
+      .to-top:hover { transform: translateY(-4px); }
+
+      /* ===== RESPONSIVE ===== */
+      @media (max-width: 860px) {
+        .about-grid { grid-template-columns: 1fr; gap: 40px; }
+        .contact-grid { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 768px) {
+        .section { padding: 72px 20px; }
+        .hamburger { display: flex; }
+        .nav-links {
+          position: fixed;
+          top: 66px;
+          left: 16px;
+          right: 16px;
+          flex-direction: column;
+          gap: 4px;
+          padding: 14px;
+          border-radius: 20px;
+          background: rgba(16, 16, 38, 0.95);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+          transform: translateY(-16px);
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease;
+        }
+        .nav-links.open { transform: none; opacity: 1; visibility: visible; }
+        .nav-links a { display: block; padding: 12px 16px; border-radius: 12px; }
+        .nav-links a:hover { background: rgba(255, 255, 255, 0.08); }
+        .hero-stats { gap: 12px; }
+        .stat { min-width: 120px; padding: 18px 22px; }
+        .avatar-ring { width: 220px; height: 220px; }
+        .avatar { font-size: 76px; }
+      }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
+    <div class="bg">
+      <div class="blob"></div>
+      <div class="blob"></div>
+      <div class="blob"></div>
+    </div>
+
+    <div id="app">
+      <header>
+        <nav @click="closeMenu">
+          <a href="#home" class="logo grad-text">{{ brand }}</a>
+          <ul class="nav-links" :class="{ open: menuOpen }">
+            <li v-for="item in navItems" :key="item.id"><a :href="'#' + item.id">{{ item.label }}</a></li>
+          </ul>
+          <button class="hamburger" :class="{ open: menuOpen }" @click.stop="menuOpen = !menuOpen" aria-label="Menu">
+            <span></span><span></span><span></span>
+          </button>
+        </nav>
+      </header>
+
+      <section id="home" class="hero">
+        <div>
+          <div class="hero-badge"><i class="pulse-dot"></i> Available for freelance work</div>
+          <h1>Hi, I'm <span class="grad-text">{{ owner }}</span><br>I build cool web stuff</h1>
+          <div class="typed-wrap"><span>{{ typed_role }}</span><i class="cursor"></i></div>
+          <p class="lead">{{ heroLead }}</p>
+          <div class="hero-actions">
+            <a href="#projects" class="btn btn-primary">View My Work</a>
+            <a href="#contact" class="btn btn-ghost">Get In Touch</a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat glass" v-reveal v-for="s in stats" :key="s.label">
+              <b class="grad-text">{{ s.value }}+</b>
+              <span>{{ s.label }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" class="section">
+        <div v-reveal>
+          <span class="tag">About Me</span>
+          <h2 class="section-title">A little intro<span class="grad-text">.</span></h2>
+          <p class="section-sub">Who I am, what I do, and why I love building for the web.</p>
+        </div>
+        <div class="about-grid">
+          <div v-reveal>
+            <div class="avatar-ring"><div class="avatar">🧑‍💻</div></div>
+          </div>
+          <div class="about-text" v-reveal>
+            <p>{{ aboutP1 }}</p>
+            <p>{{ aboutP2 }}</p>
+            <ul class="about-points">
+              <li v-for="point in aboutPoints" :key="point"><i class="check">✓</i> {{ point }}</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="skills" class="section">
+        <div v-reveal>
+          <span class="tag">Skills</span>
+          <h2 class="section-title">My tech toolbox<span class="grad-text">.</span></h2>
+          <p class="section-sub">Technologies I use to turn ideas into fast, beautiful products.</p>
+        </div>
+        <div class="skills-grid">
+          <div class="skill-card glass" v-reveal v-for="skill in skills" :key="skill.name">
+            <div class="skill-head">
+              <div class="skill-icon">{{ skill.icon }}</div>
+              <div>
+                <b>{{ skill.name }}</b><br>
+                <span>{{ skill.level }}%</span>
+              </div>
+            </div>
+            <div class="bar"><div class="bar-fill" :style="{ '--w': skill.level + '%' }"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="projects" class="section">
+        <div v-reveal>
+          <span class="tag">Portfolio</span>
+          <h2 class="section-title">Featured projects<span class="grad-text">.</span></h2>
+          <p class="section-sub">A selection of things I've designed, built and shipped recently.</p>
+        </div>
+        <div class="projects-grid">
+          <article class="project-card glass" v-reveal v-for="project in projects" :key="project.title">
+            <div class="project-cover">{{ project.icon }}</div>
+            <div class="project-body">
+              <h3>{{ project.title }}</h3>
+              <p>{{ project.desc }}</p>
+              <div class="tags">
+                <span class="tag-chip" v-for="t in project.tags" :key="t">{{ t }}</span>
+              </div>
+              <a :href="project.link" target="_blank" class="project-link">View project →</a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="contact" class="section">
+        <div v-reveal>
+          <span class="tag">Contact</span>
+          <h2 class="section-title">Let's work together<span class="grad-text">.</span></h2>
+          <p class="section-sub">Have a project in mind? Drop me a message using the form below or reach out directly.</p>
+        </div>
+        <div class="contact-grid">
+          <div class="contact-info glass" v-reveal>
+            <a
+              class="info-row"
+              :class="{ linked: info.link }"
+              v-for="info in contactInfo"
+              :key="info.label"
+              :href="info.link || undefined"
+              :target="info.link ? '_blank' : undefined"
+            >
+              <div class="info-icon">{{ info.icon }}</div>
+              <div>
+                <b>{{ info.label }}</b>
+                <span>{{ info.value }}</span>
+              </div>
+            </a>
+            <a href="https://t.me/HasBunRoeun" target="_blank" class="btn btn-primary tg-btn">
+              💬 Chat on Telegram
+            </a>
+          </div>
+          <form class="contact-form glass" v-reveal @submit.prevent="sendForm" novalidate>
+            <div class="field">
+              <label>Your Name</label>
+              <input type="text" v-model.trim="form.name" placeholder="John Doe">
+            </div>
+            <div class="field">
+              <label>Your Email</label>
+              <input type="email" v-model.trim="form.email" placeholder="john@example.com">
+            </div>
+            <div class="field">
+              <label>Message</label>
+              <textarea v-model.trim="form.message" placeholder="Tell me about your project..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" :disabled="sending">
+              <span v-if="sending" class="spinner"></span>
+              {{ sending ? 'Sending...' : 'Submit 🚀' }}
+            </button>
+            <div v-if="formStatus && !sent" class="form-msg" :class="formStatus.type">{{ formStatus.text }}</div>
+
+            <transition name="overlay-fade">
+              <div class="form-overlay" v-if="sent">
+                <div class="overlay-inner">
+                  <span class="fly-rocket">🚀</span>
+                  <svg class="check-svg" viewBox="0 0 100 100">
+                    <circle class="check-circle" cx="50" cy="50" r="48"></circle>
+                    <path class="check-mark" d="M30 52 L45 66 L72 38"></path>
+                  </svg>
+                  <h3>Message Sent!</h3>
+                  <p>Thanks {{ lastName || 'friend' }} — I'll get back to you soon.</p>
+                  <button class="btn btn-ghost" @click.prevent="resetForm">Send Another ✍️</button>
+                </div>
+              </div>
+            </transition>
+          </form>
+        </div>
+      </section>
+
+      <footer>
+        © {{ year }} <a href="#home">{{ brand }}</a> — Crafted with 💜 and Vue 3. All rights reserved.
+      </footer>
+
+      <button class="to-top" :class="{ show: showTop }" @click="scrollTop" aria-label="Back to top">↑</button>
+    </div>
+
+    <script>
+      const { createApp, ref, reactive, onMounted, onBeforeUnmount } = Vue
+
+      const app = createApp({
+        setup() {
+          const brand = ref("ScripBaa")
+          const owner = ref("Scrip")
+          const heroLead = ref(
+            "I design and develop modern, responsive websites and web apps — from pixel-perfect landing pages to full-blown Vue applications."
+          )
+          const aboutP1 = ref(
+            "I'm a creative developer who loves turning complex problems into simple, beautiful interfaces. My journey started with curiosity about how websites work — and it never stopped."
+          )
+          const aboutP2 = ref(
+            "Today I specialize in building fast, accessible and delightful experiences with modern JavaScript frameworks, always obsessing over the little details that make products feel alive."
+          )
+          const aboutPoints = ref([
+            "Clean, maintainable & well-tested code",
+            "Mobile-first, fully responsive design",
+            "Performance obsessed (Core Web Vitals)",
+            "Friendly communication & on-time delivery"
+          ])
+
+          const navItems = [
+            { id: "home", label: "Home" },
+            { id: "about", label: "About" },
+            { id: "skills", label: "Skills" },
+            { id: "projects", label: "Projects" },
+            { id: "contact", label: "Contact" }
+          ]
+
+          const stats = [
+            { value: "25", label: "Projects Done" },
+            { value: "12", label: "Happy Clients" },
+            { value: "3", label: "Years Exp." }
+          ]
+
+          const roles = ["Vue.js Developer", "UI/UX Enthusiast", "Creative Coder", "Problem Solver"]
+          const typed_role = ref("")
+          let roleIndex = 0
+          let charIndex = 0
+          let deleting = false
+          let typeTimer = null
+
+          function typeLoop() {
+            const word = roles[roleIndex]
+            charIndex += deleting ? -1 : 1
+            typed_role.value = word.slice(0, charIndex)
+
+            let delay = deleting ? 45 : 95
+            if (!deleting && charIndex === word.length) { delay = 1800; deleting = true }
+            else if (deleting && charIndex === 0) { deleting = false; roleIndex = (roleIndex + 1) % roles.length; delay = 350 }
+            typeTimer = setTimeout(typeLoop, delay)
+          }
+
+          const skills = [
+            { icon: "⚡", name: "Vue.js / Nuxt", level: 92 },
+            { icon: "🎨", name: "HTML & CSS", level: 95 },
+            { icon: "🟨", name: "JavaScript", level: 88 },
+            { icon: "🖥️", name: "Node.js", level: 75 },
+            { icon: "📱", name: "Responsive Design", level: 94 },
+            { icon: "🗄️", name: "SQL / MongoDB", level: 70 }
+          ]
+
+          const projects = [
+            {
+              icon: "🛒",
+              title: "NovaShop",
+              desc: "A blazing-fast e-commerce SPA with cart, checkout, Stripe payments and an admin dashboard.",
+              tags: ["Vue 3", "Pinia", "Stripe"],
+              link: "https://www.scripbaa.com"
+            },
+            {
+              icon: "📊",
+              title: "PulseBoard",
+              desc: "Real-time analytics dashboard with live charts, dark mode and WebSocket updates.",
+              tags: ["Nuxt", "Chart.js", "WS"],
+              link: "https://www.scripbaa.com"
+            },
+            {
+              icon: "💬",
+              title: "ChatterBox",
+              desc: "Anonymous chat rooms with rooms, reactions and end-to-end encryption.",
+              tags: ["Socket.io", "Node", "CSS"],
+              link: "https://www.scripbaa.com"
+            },
+            {
+              icon: "🎧",
+              title: "Waveify",
+              desc: "Music player web app with playlists, audio visualizer and offline support.",
+              tags: ["Vue", "Web Audio"],
+              link: "https://www.scripbaa.com"
+            },
+            {
+              icon: "🌦️",
+              title: "Skycast",
+              desc: "Minimal weather app with animated forecasts, geolocation and PWA install.",
+              tags: ["API", "PWA", "CSS"],
+              link: "https://www.scripbaa.com"
+            },
+            {
+              icon: "🎮",
+              title: "NeonSnake",
+              desc: "Browser arcade game with neon visuals, leaderboard and touch controls.",
+              tags: ["Canvas", "JS", "Game"],
+              link: "https://www.scripbaa.com"
+            }
+          ]
+
+          const contactInfo = [
+            { icon: "✈️", label: "Telegram", value: "@HasBunRoeun", link: "https://t.me/HasBunRoeun" },
+            { icon: "📧", label: "Email", value: "hello@scripbaa.com", link: "mailto:hello@scripbaa.com" },
+            { icon: "📍", label: "Location", value: "Remote — Worldwide" },
+            { icon: "🌐", label: "Website", value: "www.scripbaa.com", link: "https://www.scripbaa.com" }
+          ]
+
+          const menuOpen = ref(false)
+          const showTop = ref(false)
+          const sending = ref(false)
+          const formStatus = ref(null)
+          const form = reactive({ name: "", email: "", message: "" })
+          const year = new Date().getFullYear()
+
+          function closeMenu() { menuOpen.value = false }
+
+          const sent = ref(false)
+          const lastName = ref("")
+
+          function sendForm() {
+            if (sending.value || sent.value) return
+            if (!form.name || !form.email || !form.message) {
+              formStatus.value = { type: "err", text: "Please fill in all fields before sending. ✍️" }
+              return
+            }
+            formStatus.value = null
+            lastName.value = form.name.split(" ")[0]
+            sending.value = true
+
+            setTimeout(() => {
+              sending.value = false
+              sent.value = true
+              form.name = ""
+              form.email = ""
+              form.message = ""
+            }, 1200)
+          }
+
+          function resetForm() {
+            sent.value = false
+          }
+
+          function onScroll() { showTop.value = window.scrollY > 500 }
+          function scrollTop() { window.scrollTo({ top: 0, behavior: "smooth" }) }
+
+          onMounted(() => {
+            typeLoop()
+            window.addEventListener("scroll", onScroll, { passive: true })
+          })
+          onBeforeUnmount(() => {
+            clearTimeout(typeTimer)
+            window.removeEventListener("scroll", onScroll)
+          })
+
+          return {
+            brand, owner, heroLead, aboutP1, aboutP2, aboutPoints,
+            navItems, stats, typed_role, skills, projects, contactInfo,
+            menuOpen, closeMenu, showTop, scrollTop,
+            form, formStatus, sending, sent, lastName, sendForm, resetForm, year
+          }
+        }
+      })
+
+      const pendingReveals = new Set()
+
+      function checkPending() {
+        if (!pendingReveals.size) return
+        const limit = window.innerHeight * 0.92
+        pendingReveals.forEach(el => {
+          if (el.getBoundingClientRect().top < limit) {
+            el.classList.add("visible")
+            pendingReveals.delete(el)
+          }
+        })
+      }
+
+      app.directive("reveal", {
+        mounted(el) {
+          el.classList.add("reveal")
+          pendingReveals.add(el)
+          requestAnimationFrame(checkPending)
+        }
+      })
+
+      app.mount("#app")
+
+      window.addEventListener("scroll", checkPending, { passive: true })
+      window.addEventListener("resize", checkPending)
+      setInterval(checkPending, 700)
+    </script>
   </body>
 </html>
